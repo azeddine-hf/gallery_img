@@ -11,6 +11,7 @@ include_once 'dbconfig.class.php';
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!------ Include the above in your HEAD tag ---------->
@@ -78,7 +79,7 @@ include_once 'dbconfig.class.php';
 		<div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
                <a href="<?php echo $image['image']?>" class="fancylight popup-btn" data-fancybox-group="light"> 
                <img class="img-fluid" src="<?php echo $image['image'] ?>" title="<?=$image['name'] ?>" width='200' height='200'>
-               </a><a></a>
+               </a><a class="btn btn-info text-white mt-1">Les avis</a><a class="btn text-danger"><i class="fa fa-trash"></i></a>
             </div>
 	
 	<?php
