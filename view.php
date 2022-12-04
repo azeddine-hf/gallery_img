@@ -98,6 +98,7 @@ include_once 'dbconfig.class.php';
 				</div>
 
 			<?php
+				$database->closeConnection();
 			}
 			?>
 		</div>

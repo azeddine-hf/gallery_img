@@ -147,129 +147,96 @@
 
 <body>
     <section class="content-item" id="comments">
+        <a class="btn btn-warning fw-bold " href="view" style="width: 15%;"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Retour</a>
         <div class="d-flex justify-content-center align-items-center container">
             <div class="">
                 <?php
                 $database = new Connection();
                 $db = $database->openConnection();
+                //insert comment
+                if(isset($_POST['btn_comnt'])){
+                    @$full_name = $_POST['full_name'];
+                    @$email = $_POST['email'];
+                    @$comment = $_POST['comments'];
+                    $query = "INSERT INTO comments (desc_com,id_img,full_name,email,date_created) VALUES(?,?,?,?,?)";
+                    $statement = $db->prepare($query);
+                    date_default_timezone_set('Europe/Madrid');
+                    $statement->execute([$comment, $_REQUEST['id'], $full_name,$email,date('Y-m-d H:i:s')]);
+                }
+                
+                //select image on comments page
                 $stmt = $db->prepare('select * from images where id=' . $_REQUEST["id"] . '');
                 $stmt->execute();
                 $imagelist = $stmt->fetch();
                 ?>
                 <div class="w-50 ml-0 mr-0 mx-auto">
-                    <img src="<?php echo $imagelist['image'] ?>" class="" alt="" width="400" height="400">
-                    <div class="">
-                        <h5 class="title">Card title</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    </div>
-                </div>
-                <form class="form">
+                    <img src="<?php echo $imagelist['image'] ?>" class="" alt="" width="360" height="360">
 
-                    <h2 class=""><span class="badge rounded-pill bg-primary">Ajouter un nouveau commentaire :</span></h2>
+                </div>
+                <form class="form" method="POST" action="">
+
+                    <h2 class="h2"><span class="badge rounded-pill bg-info" style="text-transform: initial;">Ajouter un nouveau commentaire :</span></h2>
                     <fieldset>
                         <div class="row">
                             <div class="col-sm-2 col-xs-1">
-                                <img class="rounded-pill" src="uploads/user.png" alt="" width="100" height="90">
+                                <img class="rounded-pill" src="uploads/koko.jpg" alt="" width="100" height="100">
                             </div>
                             <div class="col-sm-5">
                                 <div class="form-group fl_icon">
                                     <div class="icon"><i class="fa fa-user"></i></div>
-                                    <input class="form-control" type="text" placeholder="Your name">
+                                    <input class="form-control" name="full_name" type="text" placeholder="Nom complet" required>
                                 </div>
                             </div>
                             <div class="col-sm-5">
                                 <div class="form-group fl_icon">
                                     <div class="icon"><i class="fa fa-envelope-o"></i></div>
-                                    <input class="form-control " type="text" placeholder="Your email">
+                                    <input class="form-control" name="email" type="email" placeholder="email" required>
                                 </div>
                             </div>
                             <div class="col-sm-12">
                                 <div class="form-group">
-                                    <textarea class="form-control mt-2" required="" placeholder="Your text"></textarea>
+                                    <textarea class="form-control mt-2" name="comments" required="" placeholder="votre commentaire"></textarea>
                                 </div>
                             </div class="col-sm-12">
-                            <a class="btn btn-success fw-bold">Envoyer</a>
+                            <button type="submit" name="btn_comnt" class="btn btn-success fw-bold">Envoyer</button>
                         </div>
                     </fieldset>
                 </form>
-
-                <h3>4 Comments</h3>
+                <?php
+                //select total comments
+                $stmt2 = $db->prepare("SELECT count(*) as 'total' from comments where id_img=" . $_REQUEST["id"]);
+                $stmt2->execute();
+                $count = $stmt2->fetch();
+                ?>
+                <h3><span class="badge bg-primary rounded-pill"><?php echo $count['total'] ?> commentaire</span></h3>
 
                 <!-- COMMENT 1 - START -->
-                <div class="media">
-                    <a class="pull-left" href="#"><img class="media-object" src="https://bootdey.com/img/Content/avatar/avatar1.png" alt=""></a>
-                    <div class="media-body">
-                        <h4 class="media-heading">John Doe</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <ul class="list-unstyled list-inline media-detail pull-left">
-                            <li><i class="fa fa-calendar"></i>27/02/2014</li>
-                            <li><i class="fa fa-thumbs-up"></i>13</li>
-                        </ul>
-                        <ul class="list-unstyled list-inline media-detail pull-right">
-                            <li class=""><a href="">Like</a></li>
-                            <li class=""><a href="">Reply</a></li>
-                        </ul>
+                <?php
+                $stmt2 = $db->prepare('SELECT * from comments where id_img=' . $_REQUEST['id'] . '');
+                $stmt2->execute();
+                $comment = $stmt2->fetchAll();
+                foreach ($comment as $avis) {
+                ?>
+                    <div class="media">
+                        <a class="pull-left" href="#"><img class="media-object" src="uploads/profile.jpg" alt=""></a>
+                        <div class="media-body">
+                            <h3 class="h3"><span class="badge bg-black rounded-pill"><?php echo $avis['full_name'] ?></span></h3>
+                            <p><?php echo $avis['desc_com'] ?></p>
+                            <ul class="list-unstyled list-inline media-detail ">
+                                <li ><i class="fa fa-calendar"></i ><span class="badge bg-secondary"><?php echo $avis['date_created'] ?></span></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <!-- COMMENT 1 - END -->
+                    <!-- COMMENT 1 - END -->
+                <?php
+                    //end boucle
+                    $database->closeConnection();
+                }
+                ?>
 
-                <!-- COMMENT 2 - START -->
-                <div class="media">
-                    <a class="pull-left" href="#"><img class="media-object" src="https://bootdey.com/img/Content/avatar/avatar2.png" alt=""></a>
-                    <div class="media-body">
-                        <h4 class="media-heading">John Doe</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <ul class="list-unstyled list-inline media-detail pull-left">
-                            <li><i class="fa fa-calendar"></i>27/02/2014</li>
-                            <li><i class="fa fa-thumbs-up"></i>13</li>
-                        </ul>
-                        <ul class="list-unstyled list-inline media-detail pull-right">
-                            <li class=""><a href="">Like</a></li>
-                            <li class=""><a href="">Reply</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- COMMENT 2 - END -->
 
-                <!-- COMMENT 3 - START -->
-                <div class="media">
-                    <a class="pull-left" href="#"><img class="media-object" src="https://bootdey.com/img/Content/avatar/avatar3.png" alt=""></a>
-                    <div class="media-body">
-                        <h4 class="media-heading">John Doe</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <ul class="list-unstyled list-inline media-detail pull-left">
-                            <li><i class="fa fa-calendar"></i>27/02/2014</li>
-                            <li><i class="fa fa-thumbs-up"></i>13</li>
-                        </ul>
-                        <ul class="list-unstyled list-inline media-detail pull-right">
-                            <li class=""><a href="">Like</a></li>
-                            <li class=""><a href="">Reply</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- COMMENT 3 - END -->
 
-                <!-- COMMENT 4 - START -->
-                <div class="media">
-                    <a class="pull-left" href="#"><img class="media-object" src="https://bootdey.com/img/Content/avatar/avatar4.png" alt=""></a>
-                    <div class="media-body">
-                        <h4 class="media-heading">John Doe</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <ul class="list-unstyled list-inline media-detail pull-left">
-                            <li><i class="fa fa-calendar"></i>27/02/2014</li>
-                            <li><i class="fa fa-thumbs-up"></i>13</li>
-                        </ul>
-                        <ul class="list-unstyled list-inline media-detail pull-right">
-                            <li class=""><a href="">Like</a></li>
-                            <li class=""><a href="">Reply</a></li>
-                        </ul>
-                    </div>
-                </div>
             </div>
-
-            <!-- COMMENT 4 - END -->
-
-        </div>
     </section>
 
 
