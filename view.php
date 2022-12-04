@@ -67,9 +67,16 @@ include_once 'dbconfig.class.php';
 			<div class="col-lg-12 my-4">
 				<a href="index" class="btn btn-success"><i class="fa fa-plus"></i> Ajouter une nouvelle image</a>
 			</div>
+			<div class="col-lg-10 my-1">
+			<input type="text" name="" class="form-control" placeholder="Rechercher par category...">
+			</div>
+			<div class="col-lg-2 my-1">
+            <button class="btn btn-primary">Rechercher</button>
+			</div>
 			<div class="col-lg-12 text-center my-1">
 				<h1><span class="mt-2 badge rounded-pill badge-primary ">Image Gallerie</span></h1>
 			</div>
+			
 		</div>
 		<!-- <div class="portfolio-menu mt-2 mb-4">
 			<ul>
@@ -80,7 +87,13 @@ include_once 'dbconfig.class.php';
 			<?php
 			$database = new Connection();
 			$db = $database->openConnection();
-			$stmt = $db->prepare('select * from images');
+			if(isset($_POST['btn_supimg'])){
+	            $id_img = $_POST['id_imgsup'];
+	            $query = "UPDATE images set isdeleted=1 WHERE id=?";
+	            $stmt_delete = $db->prepare($query);
+	            $stmt_delete->execute([$id_img]);
+			}
+			$stmt = $db->prepare('SELECT * from images where isdeleted != 1');
 			$stmt->execute();
 			$imagelist = $stmt->fetchAll();
 
@@ -89,7 +102,7 @@ include_once 'dbconfig.class.php';
 
 				<div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
 					<a href="<?php echo $image['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
-						<img class="img-fluid" src="<?php echo $image['image'] ?>" title="<?= $image['name'] ?>" width='170' height='170'>
+						<img class="img-fluid" src="<?php echo $image['image'] ?>" title="<?= $image['title'] ?>" width='200' height='200'>
 					</a>
 					<div class="w-50 ml-0 mr-0 mx-auto mt-2">
 						<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $image['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
@@ -113,14 +126,14 @@ include_once 'dbconfig.class.php';
 					<h4 class="modal-title w-100 text-center text-danger">Supprimer l'image</h4>
 				</div>
 				<div class="modal-body">
-					<form action="">
+					<form action="" method="POST">
 						<input type="hidden" name="id_imgsup" id="showimg_id" value="">
 						<h2 class="text-danger text-center">confirmer la supprition ?</h2>
 						<h2 class="text-danger text-center">😕</h2>
 				</div>
 				<div class="modal-footer">
 					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-					<button class="btn btn-danger" type="submit">supprimer</button>
+					<button class="btn btn-danger" name="btn_supimg" type="submit">supprimer</button>
 					</form>
 
 				</div>

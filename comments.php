@@ -154,28 +154,28 @@
                 $database = new Connection();
                 $db = $database->openConnection();
                 //insert comment
-                if(isset($_POST['btn_comnt'])){
+                if (isset($_POST['btn_comnt'])) {
                     @$full_name = $_POST['full_name'];
                     @$email = $_POST['email'];
                     @$comment = $_POST['comments'];
                     $query = "INSERT INTO comments (desc_com,id_img,full_name,email,date_created) VALUES(?,?,?,?,?)";
                     $statement = $db->prepare($query);
                     date_default_timezone_set('Europe/Madrid');
-                    $statement->execute([$comment, $_REQUEST['id'], $full_name,$email,date('Y-m-d H:i:s')]);
+                    $statement->execute([$comment, $_REQUEST['id'], $full_name, $email, date('Y-m-d H:i:s')]);
                 }
-                
+
                 //select image on comments page
                 $stmt = $db->prepare('select * from images where id=' . $_REQUEST["id"] . '');
                 $stmt->execute();
                 $imagelist = $stmt->fetch();
                 ?>
                 <div class="w-50 ml-0 mr-0 mx-auto">
-                    <img src="<?php echo $imagelist['image'] ?>" class="" alt="" width="360" height="360">
+                    <img src="<?php echo $imagelist['image'] ?>" class="" alt="" style="width: 100%;">
 
                 </div>
                 <form class="form" method="POST" action="">
 
-                    <h2 class="h2"><span class="badge rounded-pill bg-info" style="text-transform: initial;">Ajouter un nouveau commentaire :</span></h2>
+                    <h2 class="h2"><span class="badge rounded-pill bg-success" style="text-transform: initial;">Ajouter un nouveau commentaire :</span></h2>
                     <fieldset>
                         <div class="row">
                             <div class="col-sm-2 col-xs-1">
@@ -223,7 +223,7 @@
                             <h3 class="h3"><span class="badge bg-black rounded-pill"><?php echo $avis['full_name'] ?></span></h3>
                             <p><?php echo $avis['desc_com'] ?></p>
                             <ul class="list-unstyled list-inline media-detail ">
-                                <li ><i class="fa fa-calendar"></i ><span class="badge bg-secondary"><?php echo $avis['date_created'] ?></span></li>
+                                <li><i class="fa fa-calendar"></i><span class="badge bg-secondary"><?php echo $avis['date_created'] ?></span></li>
                             </ul>
                         </div>
                     </div>
