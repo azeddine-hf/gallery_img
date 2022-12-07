@@ -1,7 +1,7 @@
 <?php
 include_once 'dbconfig.class.php';
-
-// include "database_connection.php";
+$database = new Connection();
+$db = $database->openConnection();
 ?>
 
 <!DOCTYPE html>
@@ -62,59 +62,152 @@ include_once 'dbconfig.class.php';
 </head>
 
 <body>
+	<?php
+	$count = "SELECT COUNT(*) as nbr_img FROM images WHERE isdeleted !=1 ";
+	$nbr_img = $db->prepare($count);
+	$nbr_img->execute();
+	$res_nbr = $nbr_img->fetch();
+	//pagination
+	@$page = $_GET['page'];
+	if (empty($page))
+		$page = 1;
+	$nbr_per_page = 8;
+	$nbr_de_page = ceil($res_nbr['nbr_img'] / $nbr_per_page);
+	$debut = ($page - 1) * $nbr_per_page;
+	?>
 	<div class="container">
-		<div class="row">
-			<div class="col-lg-12 my-4">
+		<div class="section">
+			<div class=" my-4">
 				<a href="index" class="btn btn-success"><i class="fa fa-plus"></i> Ajouter une nouvelle image</a>
 			</div>
-			<div class="col-lg-10 my-1">
-			<input type="text" name="" class="form-control" placeholder="Rechercher par category...">
-			</div>
-			<div class="col-lg-2 my-1">
-            <button class="btn btn-primary">Rechercher</button>
-			</div>
 			<div class="col-lg-12 text-center my-1">
-				<h1><span class="mt-2 badge rounded-pill badge-primary ">Image Gallerie</span></h1>
+				<h1><span class=" badge rounded-pill badge-primary ">Image Gallerie</span></h1>
 			</div>
-			
+			<form action="" class="mt-4" method="GET">
+				<div class="row">
+					<div class="col-lg-2 my-1">
+						<a href="view.php" style="width: 100%;" class="btn btn-success fw-bold text-white" id="back_glr"><i class="fa fa-refresh" aria-hidden="true"></i> Actualiser</a>
+					</div>
+					<div class="col-lg-7 my-1">
+						<input type="text" name="recherch" class="form-control" placeholder="Rechercher par category...">
+					</div>
+					<div class="col-lg-3 my-1">
+						<button class="btn btn-success" type="submit" name="btn_search" style="width: 100%;">Rechercher</button>
+					</div>
+				</div>
+			</form>
+
 		</div>
+
 		<!-- <div class="portfolio-menu mt-2 mb-4">
 			<ul>
 				<li class="btn btn-outline-dark active" data-filter="*">All</li>
 			</ul>
 		</div> -->
-		<div class="portfolio-item row mt-2">
-			<?php
-			$database = new Connection();
-			$db = $database->openConnection();
-			if(isset($_POST['btn_supimg'])){
-	            $id_img = $_POST['id_imgsup'];
-	            $query = "UPDATE images set isdeleted=1 WHERE id=?";
-	            $stmt_delete = $db->prepare($query);
-	            $stmt_delete->execute([$id_img]);
-			}
-			$stmt = $db->prepare('SELECT * from images where isdeleted != 1');
-			$stmt->execute();
-			$imagelist = $stmt->fetchAll();
 
-			foreach ($imagelist as $image) {
+		<div class="portfolio-item row mt-5">
+			<?php
+			if (!isset($_GET['btn_search'])) {
+				if (isset($_POST['btn_supimg'])) {
+
+					$id_img = $_POST['id_imgsup'];
+					$query = "UPDATE images set isdeleted=1 WHERE id=?";
+					$stmt_delete = $db->prepare($query);
+					$stmt_delete->execute([$id_img]);
+				}
+				$stmt = $db->prepare("SELECT * from images where isdeleted != 1 limit $debut,$nbr_per_page");
+				$stmt->execute();
+				$imagelist = $stmt->fetchAll();
+				if (count($imagelist) == 0)
+					header("location: view.php");
+
+				foreach ($imagelist as $image) {
 			?>
 
+					<div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
+						<a href="<?php echo $image['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
+							<img class="img-fluid" src="<?php echo $image['image'] ?>" title="<?= $image['title'] ?>" width='200' height='200'>
+						</a>
+						<div class="w-50 ml-0 mr-0 mx-auto mt-2">
+							<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $image['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
+							<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $image['id'] ?>"><i class="fa fa-trash-o"></i></a>
+						</div>
+					</div>
+
+				<?php
+					$database->closeConnection();
+				}
+				?>
+		</div>
+		<nav aria-label="Page navigation example ">
+			<ul class="pagination">
+				<?php
+				for ($i = 1; $i <= $nbr_de_page; $i++) {
+					if ($page != $i)
+						echo "<li class=\"page-item\"><a class=\"page-link\" href=\"?page=$i\">$i</a></li>";
+					else
+						echo "<li class=\"page-item active\"><a class=\"page-link\">$i</a></li>";
+				}
+				?>
+			</ul>
+		</nav>
+		<?php
+			} else {
+
+				if (isset($_GET['btn_search'])) {
+					//pagination for search
+					$count2 = "SELECT COUNT(*) as nbr_img FROM images WHERE isdeleted !=1 ";
+					$nbr_img2 = $db->prepare($count2);
+					$nbr_img2->execute();
+					$res_nbr2 = $nbr_img2->fetch();
+					//pagination
+					@$page = $_GET['page'];
+					if (empty($page))
+						$page = 1;
+					$nbr_per_page = 8;
+
+					$nbr_de_page = ceil($res_nbr2['nbr_img'] / $nbr_per_page);
+					$debut = ($page - 1) * $nbr_per_page;
+					$keyword = $_GET['recherch'];
+					$query = "SELECT * FROM images WHERE isdeleted !=1 AND title LIKE ? limit $debut,$nbr_per_page";
+					$stat_srch = $db->prepare($query);
+					$stat_srch->execute(['%' . $keyword . '%']);
+					$result = $stat_srch->fetchAll();
+
+					foreach ($result as $res) {
+		?>
 				<div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
-					<a href="<?php echo $image['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
-						<img class="img-fluid" src="<?php echo $image['image'] ?>" title="<?= $image['title'] ?>" width='200' height='200'>
+					<a href="<?php echo $res['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
+						<img class="img-fluid" src="<?php echo $res['image'] ?>" title="<?= $res['title'] ?>">
 					</a>
 					<div class="w-50 ml-0 mr-0 mx-auto mt-2">
-						<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $image['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
-						<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $image['id'] ?>"><i class="fa fa-trash-o"></i></a>
+						<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $res['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
+						<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $res['id'] ?>"><i class="fa fa-trash-o"></i></a>
 					</div>
 				</div>
-
-			<?php
-				$database->closeConnection();
-			}
-			?>
+	<?php
+					}
+				}
+				?>
 		</div>
+		<nav aria-label="Page navigation example ">
+			<ul class="pagination">
+				<?php
+				for ($i = 1; $i <= $nbr_de_page; $i++) {
+					if ($page != $i)
+						echo "<li class=\"page-item\"><a class=\"page-link\" href=\"?page=$i&recherch=$keyword&btn_search=''\">$i</a></li>";
+					else
+						echo "<li class=\"page-item active\"><a class=\"page-link\" >$i</a></li>";
+				}
+				?>
+			</ul>
+		</nav>
+		<?php
+			}
+
+	?>
+	</div>
+
 	</div>
 
 	<!--Modal for delete img-->
@@ -141,29 +234,12 @@ include_once 'dbconfig.class.php';
 		</div>
 	</div>
 
-	<div id="myModal" class="modal hide">
-		<div class="modal-header">
-			<a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
-			<h3>Delete</h3>
-		</div>
-		<div class="modal-body">
-			<p>You are about to delete.</p>
-			<p>Do you want to proceed?</p>
-		</div>
-		<div class="modal-footer">
-			<a href="#" id="btnYes" class="btn danger">Yes</a>
-			<a href="#" data-dismiss="modal" aria-hidden="true" class="btn secondary">No</a>
-		</div>
-	</div>
-
-
-
 	<!--scriiipts-->
 	<script>
 		$(function() {
 			$('#myModal').on('show.bs.modal', function(event) {
 				var button = $(event.relatedTarget);
-				var id_img = button.data('id_img'); 
+				var id_img = button.data('id_img');
 				var modal = $(this);
 				modal.find('#showimg_id').val(id_img);
 			});
