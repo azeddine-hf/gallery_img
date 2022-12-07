@@ -179,7 +179,7 @@
                     <fieldset>
                         <div class="row">
                             <div class="col-sm-2 col-xs-1">
-                                <img class="rounded-pill" src="uploads/koko.jpg" alt="" width="100" height="100">
+                                <img class="rounded-pill" src="uploads/koko1.png" alt="" width="100" height="100">
                             </div>
                             <div class="col-sm-5">
                                 <div class="form-group fl_icon">

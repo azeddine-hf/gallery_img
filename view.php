@@ -22,6 +22,8 @@ $db = $database->openConnection();
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.js"></script>
 	<style>
+		@import "compass/css3";
+
 		body {
 			margin: 0;
 			padding: 0;
@@ -58,6 +60,8 @@ $db = $database->openConnection();
 		.badge.even-larger-badge {
 			font-size: 1.1em;
 		}
+
+		/**modal 5 pagination */
 	</style>
 </head>
 
@@ -81,18 +85,18 @@ $db = $database->openConnection();
 				<a href="index" class="btn btn-success"><i class="fa fa-plus"></i> Ajouter une nouvelle image</a>
 			</div>
 			<div class="col-lg-12 text-center my-1">
-				<h1><span class=" badge rounded-pill badge-primary ">Image Gallerie</span></h1>
+				<h1><span class=" badge rounded-pill badge-primary">Image Gallerie</span></h1>
 			</div>
 			<form action="" class="mt-4" method="GET">
 				<div class="row">
 					<div class="col-lg-2 my-1">
-						<a href="view.php" style="width: 100%;" class="btn btn-success fw-bold text-white" id="back_glr"><i class="fa fa-refresh" aria-hidden="true"></i> Actualiser</a>
+						<a href="view.php" style="width: 100%;" class="btn btn-primary fw-bold text-white" id="back_glr"><i class="fa fa-refresh" aria-hidden="true"></i> Actualiser</a>
 					</div>
 					<div class="col-lg-7 my-1">
 						<input type="text" name="recherch" class="form-control" placeholder="Rechercher par category...">
 					</div>
 					<div class="col-lg-3 my-1">
-						<button class="btn btn-success" type="submit" name="btn_search" style="width: 100%;">Rechercher</button>
+						<button class="btn btn-primary" type="submit" name="btn_search" style="width: 100%;">Rechercher</button>
 					</div>
 				</div>
 			</form>
@@ -104,108 +108,171 @@ $db = $database->openConnection();
 				<li class="btn btn-outline-dark active" data-filter="*">All</li>
 			</ul>
 		</div> -->
+		<div class="section">
 
-		<div class="portfolio-item row mt-5">
+			<div class="portfolio-item row mt-5">
+				<?php
+				if (!isset($_GET['btn_search'])) {
+					if (isset($_POST['btn_supimg'])) {
+
+						$id_img = $_POST['id_imgsup'];
+						$query = "UPDATE images set isdeleted=1 WHERE id=?";
+						$stmt_delete = $db->prepare($query);
+						$stmt_delete->execute([$id_img]);
+					}
+					$stmt = $db->prepare("SELECT * from images where isdeleted != 1 limit $debut,$nbr_per_page");
+					$stmt->execute();
+					$imagelist = $stmt->fetchAll();
+					if (count($imagelist) == 0)
+						header("location: view.php");
+
+					foreach ($imagelist as $image) {
+				?>
+						<!--for one size -->
+						<div class="col-sm-3 col-md-3">
+							<div class="item selfie ml-2">
+								<div class="thumbnail">
+
+									<a href="<?php echo $image['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
+										<img style="height: 250px;" src="<?php echo $image['image'] ?>" alt="<?= $image['title'] ?>" title="<?= $image['title'] ?>">
+									</a>
+								</div>
+								<div class="caption">
+									<h3><?= $image['title'] ?></h3>
+									<p>
+										<a class="btn btn-primary text-white mt-1" href="comments?id=<?php echo $image['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
+										<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $image['id'] ?>"><i class="fa fa-trash-o"></i></a>
+									</p>
+								</div>
+							</div>
+						</div>
+						<!--for portfolio-->
+						<!-- <div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
+							<a href="< echo $image['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
+								<img class="img-fluid" src="< echo $image['image'] ?>" title= $image['title'] ?>" width='200' height='200'>
+							</a>
+							<div class="w-50 ml-0 mr-0 mx-auto mt-2">
+								<a class="btn btn-warning text-white mt-1" href="comments?id=< echo $image['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
+								<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="< echo $image['id'] ?>"><i class="fa fa-trash-o"></i></a>
+							</div>
+						</div> -->
+
+					<?php
+						$database->closeConnection();
+					}
+					?>
+			</div>
+			<ul class="pagination justify-content-center">
+				<?php
+					if ($page > 1) {
+						echo '<li class="page-item "><a class="page-link" href="?page=' . ($page - 1) . '"><<</a></li>';
+					}else{
+		                echo '<li class="page-item "><a class="page-link" href="javascript:void(0);"><<</a></li>';
+					}
+					for ($i = 1; $i <= $nbr_de_page; $i++) {
+						if ($i == $page)
+							$active = "active";
+						else
+							$active = "";
+
+						if ($page != $i)
+							echo "<li class=\"page-item \"><a class=\"page-link\" href=\"?page=$i\">$i</a></li>";
+						else
+							echo "<li class=\"$active page-item \"><a class=\"page-link\">$i</a></li>";
+					}
+					if ($nbr_de_page > $page) {
+						echo '<li class="page-item "><a class="page-link" href="?page=' . ($page + 1) . '">>></a></li>';
+					}else{
+		                echo '<li class="page-item "><a class="page-link" href="javascript:void(0);">>></a></li>';
+					}
+
+				?>
+			</ul>
+			<!-- <div class="pagination text-center">
+				<ul>
+					<
+					for ($i = 1; $i <= $nbr_de_page; $i++) {
+						if ($page != $i)
+							echo "<li class=\"page-item\"><a class=\"page-link\" href=\"?page=$i\">$i</a></li>";
+						else
+							echo "<li class=\"page-item active\"><a class=\"page-link\">$i</a></li>";
+					}
+					?>
+				</ul>
+			</div> -->
+
 			<?php
-			if (!isset($_GET['btn_search'])) {
-				if (isset($_POST['btn_supimg'])) {
+				} else {
 
-					$id_img = $_POST['id_imgsup'];
-					$query = "UPDATE images set isdeleted=1 WHERE id=?";
-					$stmt_delete = $db->prepare($query);
-					$stmt_delete->execute([$id_img]);
-				}
-				$stmt = $db->prepare("SELECT * from images where isdeleted != 1 limit $debut,$nbr_per_page");
-				$stmt->execute();
-				$imagelist = $stmt->fetchAll();
-				if (count($imagelist) == 0)
-					header("location: view.php");
+					if (isset($_GET['btn_search'])) {
+						//pagination for search
+						$keyword = $_GET['recherch'];
+						$count2 = "SELECT COUNT(*) as nbr_img FROM images WHERE isdeleted !=1 AND title like ?";
+						$nbr_img2 = $db->prepare($count2);
+						$nbr_img2->execute(['%'. $keyword .'%']);
+						$res_nbr2 = $nbr_img2->fetch();
+						//pagination
+						@$page = $_GET['page'];
+						if (empty($page))
+							$page = 1;
+						$nbr_per_page = 8;
 
-				foreach ($imagelist as $image) {
+						$nbr_de_page = ceil($res_nbr2['nbr_img'] / $nbr_per_page);
+						$debut = ($page - 1) * $nbr_per_page;
+						$query = "SELECT * FROM images WHERE isdeleted !=1 AND title LIKE ? limit $debut,$nbr_per_page";
+						$stat_srch = $db->prepare($query);
+						$stat_srch->execute(['%' . $keyword . '%']);
+						$result = $stat_srch->fetchAll();
+
+						foreach ($result as $res) {
 			?>
-
 					<div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
-						<a href="<?php echo $image['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
-							<img class="img-fluid" src="<?php echo $image['image'] ?>" title="<?= $image['title'] ?>" width='200' height='200'>
+						<a href="<?php echo $res['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
+							<img class="img-fluid" src="<?php echo $res['image'] ?>" title="<?= $res['title'] ?>">
 						</a>
 						<div class="w-50 ml-0 mr-0 mx-auto mt-2">
-							<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $image['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
-							<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $image['id'] ?>"><i class="fa fa-trash-o"></i></a>
+							<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $res['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
+							<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $res['id'] ?>"><i class="fa fa-trash-o"></i></a>
 						</div>
 					</div>
-
-				<?php
-					$database->closeConnection();
-				}
-				?>
-		</div>
-		<nav aria-label="Page navigation example ">
-			<ul class="pagination">
-				<?php
-				for ($i = 1; $i <= $nbr_de_page; $i++) {
-					if ($page != $i)
-						echo "<li class=\"page-item\"><a class=\"page-link\" href=\"?page=$i\">$i</a></li>";
-					else
-						echo "<li class=\"page-item active\"><a class=\"page-link\">$i</a></li>";
-				}
-				?>
-			</ul>
-		</nav>
-		<?php
-			} else {
-
-				if (isset($_GET['btn_search'])) {
-					//pagination for search
-					$count2 = "SELECT COUNT(*) as nbr_img FROM images WHERE isdeleted !=1 ";
-					$nbr_img2 = $db->prepare($count2);
-					$nbr_img2->execute();
-					$res_nbr2 = $nbr_img2->fetch();
-					//pagination
-					@$page = $_GET['page'];
-					if (empty($page))
-						$page = 1;
-					$nbr_per_page = 8;
-
-					$nbr_de_page = ceil($res_nbr2['nbr_img'] / $nbr_per_page);
-					$debut = ($page - 1) * $nbr_per_page;
-					$keyword = $_GET['recherch'];
-					$query = "SELECT * FROM images WHERE isdeleted !=1 AND title LIKE ? limit $debut,$nbr_per_page";
-					$stat_srch = $db->prepare($query);
-					$stat_srch->execute(['%' . $keyword . '%']);
-					$result = $stat_srch->fetchAll();
-
-					foreach ($result as $res) {
-		?>
-				<div class="item selfie col-lg-3 col-md-4 col-6 col-sm">
-					<a href="<?php echo $res['image'] ?>" class="fancylight popup-btn" data-fancybox-group="light">
-						<img class="img-fluid" src="<?php echo $res['image'] ?>" title="<?= $res['title'] ?>">
-					</a>
-					<div class="w-50 ml-0 mr-0 mx-auto mt-2">
-						<a class="btn btn-warning text-white mt-1" href="comments?id=<?php echo $res['id'] ?>"><i class="fa fa-comments"></i> Avis</a>
-						<a href="#myModal" role="button" class="btn text-danger" data-id="4" data-toggle="modal" data-toggle="modal" data-id_img="<?php echo $res['id'] ?>"><i class="fa fa-trash-o"></i></a>
-					</div>
-				</div>
-	<?php
+			<?php
+						}
 					}
-				}
-				?>
+			?>
 		</div>
-		<nav aria-label="Page navigation example ">
-			<ul class="pagination">
+		<ul class="pagination justify-content-center">
 				<?php
-				for ($i = 1; $i <= $nbr_de_page; $i++) {
-					if ($page != $i)
-						echo "<li class=\"page-item\"><a class=\"page-link\" href=\"?page=$i&recherch=$keyword&btn_search=''\">$i</a></li>";
-					else
-						echo "<li class=\"page-item active\"><a class=\"page-link\" >$i</a></li>";
-				}
+					if ($page > 1) {
+						echo '<li class="page-item "><a class="page-link" href="?page=' . ($page - 1) . '&recherch='.$keyword.'&btn_search=\'\'"><<</a></li>';
+					}else{
+		                echo '<li class="page-item "><a class="page-link" href="javascript:void(0);"><<</a></li>';
+					}
+					for ($i = 1; $i <= $nbr_de_page; $i++) {
+						if ($i == $page)
+							$active = "active";
+						else
+							$active = "";
+
+						if ($page != $i)
+							echo "<li class=\"page-item \"><a class=\"page-link\" href=\"?page=$i&recherch=$keyword&btn_search=''\">$i</a></li>";
+						else
+							echo "<li class=\"$active page-item \"><a class=\"page-link\">$i</a></li>";
+					}
+					if ($nbr_de_page > $page) {
+						echo '<li class="page-item "><a class="page-link" href="?page=' . ($page + 1) . '&recherch='.$keyword.'&btn_search=\'\'">>></a></li>';
+					}else{
+		                echo '<li class="page-item "><a class="page-link" href="javascript:void(0);">>></a></li>';
+					}
+
 				?>
 			</ul>
-		</nav>
-		<?php
-			}
+		
+	<?php
+				}
 
 	?>
+	</div>
+
 	</div>
 
 	</div>
