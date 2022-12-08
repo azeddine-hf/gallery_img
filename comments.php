@@ -165,17 +165,20 @@
                 }
 
                 //select image on comments page
-                $stmt = $db->prepare('select * from images where id=' . $_REQUEST["id"] . '');
+                $stmt = $db->prepare('SELECT * from images where id=' . $_REQUEST["id"] . '');
                 $stmt->execute();
-                $imagelist = $stmt->fetch();
+                $imagelist = $stmt->fetchAll();
+                $id_img = $_REQUEST["id"];
+                if (count($imagelist) == 0)
+                header("location: view.php");
                 ?>
                 <div class="w-50 ml-0 mr-0 mx-auto">
-                    <img src="<?php echo $imagelist['image'] ?>" class="" alt="" style="width: 100%;">
-
+                <h2 class="text-center  rounded-pill text-white bg-black"><?php echo $imagelist[0]["title"] ?></h2>
+                    <img src="<?php echo $imagelist[0]["image"] ?>" class="img rounded" title="<?php echo $imagelist[0]["title"] ?>" alt="" style="width: 100%;" >
                 </div>
                 <form class="form" method="POST" action="">
 
-                    <h2 class="h2"><span class="badge rounded-pill bg-success" style="text-transform: initial;">Ajouter un nouveau commentaire :</span></h2>
+                    <h2 class="h2"><span class="badge rounded-pill bg-success" style="text-transform: initial;">Ajouter un commentaire :</span></h2>
                     <fieldset>
                         <div class="row">
                             <div class="col-sm-2 col-xs-1">
@@ -215,6 +218,9 @@
                 $stmt2 = $db->prepare('SELECT * from comments where id_img=' . $_REQUEST['id'] . '');
                 $stmt2->execute();
                 $comment = $stmt2->fetchAll();
+                
+
+
                 foreach ($comment as $avis) {
                 ?>
                     <div class="media">

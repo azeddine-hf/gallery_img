@@ -85,7 +85,7 @@ $db = $database->openConnection();
 				<a href="index" class="btn btn-success"><i class="fa fa-plus"></i> Ajouter une nouvelle image</a>
 			</div>
 			<div class="col-lg-12 text-center my-1">
-				<h1><span class=" badge rounded-pill badge-primary">Image Gallerie</span></h1>
+				<h1><span class="badge bg-primary rounded-pill text-white">Image Gallerie</span></h1>
 			</div>
 			<form action="" class="mt-4" method="GET">
 				<div class="row">
@@ -96,7 +96,7 @@ $db = $database->openConnection();
 						<input type="text" name="recherch" class="form-control" placeholder="Rechercher par category...">
 					</div>
 					<div class="col-lg-3 my-1">
-						<button class="btn btn-primary" type="submit" name="btn_search" style="width: 100%;">Rechercher</button>
+						<button class="btn btn-primary" type="submit" name="btn_search" style="width: 100%;"><i class="fa fa-search" aria-hidden="true"></i> Rechercher</button>
 					</div>
 				</div>
 			</form>
