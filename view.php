@@ -183,7 +183,7 @@ $db = $database->openConnection();
 					if ($nbr_de_page > $page) {
 						echo '<li class="page-item "><a class="page-link" href="?page=' . ($page + 1) . '">>></a></li>';
 					}else{
-		                echo '<li class="page-item "><a class="page-link" href="javascript:void(0);">>></a></li>';
+		                echo '<li class="page-item " ><a class="page-link" disabled ></a></li>';
 					}
 
 				?>
