@@ -82,7 +82,7 @@ $db = $database->openConnection();
 	<div class="container">
 		<div class="section">
 			<div class=" my-4">
-				<a href="index" class="btn btn-success"><i class="fa fa-plus"></i> Ajouter une nouvelle image</a>
+				<a href="index.php" class="btn btn-success"><i class="fa fa-plus"></i> Ajouter une nouvelle image</a>
 			</div>
 			<div class="col-lg-12 text-center my-1">
 				<h1><span class="badge bg-primary rounded-pill text-white">Image Gallerie</span></h1>
